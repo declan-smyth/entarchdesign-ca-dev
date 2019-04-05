@@ -44,4 +44,18 @@ There are ZERO instances running in your environment
 
 # Print the list of Instances that are running
 for instance in instanceList:
-    print(instance.id, instance.public_ip_address, instance.state["Name"], instance.region)
+    print(instance.id, instance.public_ip_address, instance.state["Name"])
+
+
+
+# Ask user for input to select the number of machines to disrupt
+iNumberInstancesToDisrupt = -1
+while iNumberInstancesToDisrupt < 0:
+        iNumberInstancesToDisrupt = int(input ("How many instances do you want to disrupt (MAX: %s, Min: 0):" % len(instanceList)))
+        if iNumberInstancesToDisrupt > len(instanceList):
+                print ("You input more than the max number of machines available in the environment")
+                iNumberInstancesToDisrupt = -1
+        else:
+                print ("You requested to disrupt %s instances" %iNumberInstancesToDisrupt)
+
+

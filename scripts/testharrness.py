@@ -8,14 +8,15 @@
 #
 import boto3
 import uuid
+import datetime
 
 print ("""\
-********************************************
+******************************************************
 
-       Welcome to the Chaos Monkey 
-            AWS Test Harness
+             Welcome to the Chaos Monkey 
+                  AWS Test Harness
 
-********************************************
+******************************************************
 """)
 
 #-------------------------------------------
@@ -29,6 +30,16 @@ def GetListOfRunningInstances(ec2Res):
         # Get all running instances in the environment
         ec2Instances = ec2Res.instances.filter(
                         Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
+        instanceList = [instance for instance in ec2Instances]
+        return instanceList
+
+# -- Function: Get List of Starting Instances & Print on Screen
+#               Input: ec2 Resrouce 
+#               Return: List of Starting Instances
+def GetListOfStartingInstances(ec2Res):
+        # Get all running instances in the environment
+        ec2Instances = ec2Res.instances.filter(
+                        Filters=[{'Name': 'instance-state-name', 'Values': ['starting']}])
         instanceList = [instance for instance in ec2Instances]
         return instanceList
 
@@ -89,8 +100,11 @@ ec2Resource = boto3.resource('ec2')
 # Get List of Running Instances
 instanceRunList = GetListOfRunningInstances(ec2Resource)
 
+# Get Number of Instances Running
+numInstancesRunning = len(instanceRunList)
+
 # Print the Instance Information on Screen
-if len(instanceRunList) > 0 :
+if numInstancesRunning > 0 :
         PrintInformationToScreen(instanceRunList)
 else:
         print ("""\
@@ -100,26 +114,33 @@ print ("============================================================")
 
 # Ask user for input to select the number of machines to disrupt
 iNumberInstancesToDisrupt = -1
-while iNumberInstancesToDisrupt < 0:
-        iNumberInstancesToDisrupt = int(input ("How many instances do you want to disrupt (MAX: %s, Min: 0):" % len(instanceRunList)))
-        if iNumberInstancesToDisrupt > len(instanceRunList):
-                print ("You input more than the max number of machines available in the environment")
-                iNumberInstancesToDisrupt = -1
-        else:
-                print ("You requested to disrupt %s instances" %iNumberInstancesToDisrupt)
+if numInstancesRunning > 0:       
+        while iNumberInstancesToDisrupt < 0:
+                iNumberInstancesToDisrupt = int(input ("How many instances do you want to disrupt (MAX: %s, Min: 0):" % len(instanceRunList)))
+                if iNumberInstancesToDisrupt > len(instanceRunList):
+                        print ("You input more than the max number of machines available in the environment")
+                        iNumberInstancesToDisrupt = -1
+                else:
+                        print ("You requested to disrupt %s instances" %iNumberInstancesToDisrupt)
 
 # Select instances at random from the list to disrupt
 print ("============================================================")
 
-if iNumberInstancesToDisrupt > 0:
+if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
         # Select Instances to Terminate
         disruptList = RandomlySelectInstances(instanceRunList,iNumberInstancesToDisrupt)
 
         # Terminate Instances
         TerminateInstances(ec2Resource,disruptList)
 
+        # Start Time to determine how long it takes to recover the system
+        startTime = datetime.datetime.now()
+
         # Get List of Running Instances
         instanceRunList = GetListOfRunningInstances(ec2Resource)
 
         # Print Instance Information to Screen
         PrintInformationToScreen(instanceRunList)
+
+        # Monitor the environment until machines have been recovered
+

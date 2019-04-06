@@ -32,19 +32,51 @@ def GetListOfRunningInstances(ec2Res):
         instanceList = [instance for instance in ec2Instances]
         return instanceList
 
-# -- Function: Print on Screen
+# -- Function: Print Instance Informatgion on Screen
 #               Input: List of Instances
 #               Return: None
 def PrintInformationToScreen(instLst):
+        print ("""\
+There are %s instances running your environment
+""" % len(instLst))
+
         # Print the list of Instances to the screen
         for instance in instLst:
                 print(instance.id, instance.public_ip_address, instance.state["Name"])
 
+# -- Function: Print Instance Informatgion on Screen
+#               Input: List of Instances
+#               Return: None
+def PrintListToScreen(aLst):
+        # Print the list of Instances to the screen
+        for item in aLst:
+                print(item)
+
+# -- Function: Randomly Select Instances to disrupt.
+#              The function will check if the id of the instance is in the list already
+#
+#               Input: List of Instances, Number to Select
+#               Return: Selected Instance IDs
+def RandomlySelectInstances(instLst, numSelected):
+        count=0
+        disruptList = list()
+        from random import randint
+        while count <= (numSelected -1):
+                id = instLst[randint(0, len(instLst)-1)].id
+                if ( id not in disruptList):
+                        disruptList.append (id)
+                        count+=1
+        return disruptList
+
+
 # -- Function: Terminate Random Instances and Instance IDs
 #               Input: Number of Instances to Terminate
 #               Return: List of Instance IDs to Terminatated
-def TerminateInstances(instLst):
-        pass
+def TerminateInstances(ec2Res,terminateLst):
+        print ("The following instances are now being TERMINATED")
+        for instance in terminateLst:
+                print (instance)
+        ec2Res.instances.filter(InstanceIds=terminateLst).terminate()
 
 #-------------------------------------------
 
@@ -57,22 +89,13 @@ ec2Resource = boto3.resource('ec2')
 # Get List of Running Instances
 instanceRunList = GetListOfRunningInstances(ec2Resource)
 
+# Print the Instance Information on Screen
 if len(instanceRunList) > 0 :
-        # Print out available instances by quering the Reservations and Instances dict
-        print ("""\
-There are %s instances running your environment
-
-"""
-        % len(instanceRunList))
+        PrintInformationToScreen(instanceRunList)
 else:
         print ("""\
 There are ZERO instances running in your environment
         """)
-
-# Print the list of Instances that are running
-PrintInformationToScreen(instanceRunList)
-
-
 print ("============================================================")
 
 # Ask user for input to select the number of machines to disrupt
@@ -85,20 +108,18 @@ while iNumberInstancesToDisrupt < 0:
         else:
                 print ("You requested to disrupt %s instances" %iNumberInstancesToDisrupt)
 
-# Select two instances at random from the list to disrupt
+# Select instances at random from the list to disrupt
 print ("============================================================")
-count=0
-disruptList = list()
-from random import randint
-while count <= (iNumberInstancesToDisrupt -1):
-        disruptList.append (instanceRunList[randint(0, len(instanceRunList))-1].id)
-        count+=1
 
-# Terminate the the randomly selected instances
 if iNumberInstancesToDisrupt > 0:
-        print ("The following instances are now being TERMINATED")
-        for dInstance in disruptList:
-                print (dInstance)
-        ec2Resource.instances.filter(InstanceIds=disruptList).terminate()
-        print ("============================================================")
+        # Select Instances to Terminate
+        disruptList = RandomlySelectInstances(instanceRunList,iNumberInstancesToDisrupt)
 
+        # Terminate Instances
+        TerminateInstances(ec2Resource,disruptList)
+
+        # Get List of Running Instances
+        instanceRunList = GetListOfRunningInstances(ec2Resource)
+
+        # Print Instance Information to Screen
+        PrintInformationToScreen(instanceRunList)

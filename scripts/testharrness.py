@@ -65,6 +65,16 @@ def TerminateInstances(ec2Res,terminateLst):
                 print (instance)
         ec2Res.instances.filter(InstanceIds=terminateLst).terminate()
 
+# -- Function:  Calculate the timeout value for the tests based on
+#               i.   Number of instances to terminate
+#               ii.  ELB Health Checks
+#               iii. Auto Scale Settings
+#               Input: Number of Instances to Terminate
+#               Return: List of Instance IDs to Terminatated
+def CalculateTimeOutValue():
+        # Setup Test Timeout value in Seconds
+        testTimeoutValue = 0
+
 #-------------------------------------------
 # Print Start Title on Screen
 printinfo.PrintTitle()
@@ -74,9 +84,6 @@ ec2Client = boto3.client('ec2')
 
 # Setup an EC2 Resource
 ec2Resource = boto3.resource('ec2')
-
-# Setup Test Timeout value in Seconds
-testTimeoutValue = 
 
 # Get List of Running Instances
 instanceRunList = GetListOfRunningInstances(ec2Resource)
@@ -130,6 +137,9 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
         print ("\n\nAWS HA is recovering your instances, please wait for this to complete")
         print ("")
         timedout=False
+        # Calculate the timeout value based on the number of instances to terminate (in Seconds)
+        testTimeoutValue = 150 * iNumberInstancesToDisrupt
+        print ("\n *** TIMEOUT SET TO %s ***" % testTimeoutValue)
         while runningListNum != numInstancesRunning and timedout == False:
                 
                 # Get the list of instances in a starting state
@@ -143,7 +153,7 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
                 startingListNum = len(startingList)
 
                 # Add a time out to ensure the testing does not run forever
-                if datetime.datetime.now() > testStartTime + datetime.timedelta(seconds=10):
+                if datetime.datetime.now() > testStartTime + datetime.timedelta(seconds=testTimeoutValue):
                         timedout = True
                         print ("Timed Out !!!!")
         else:
@@ -156,7 +166,6 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
                                 "starttime" : '{0:%Y-%m-%d %H:%M:%S}'.format(testStartTime),
                                 "endtime":'{0:%Y-%m-%d %H:%M:%S}'.format(testStopTime),
                                 "instancesrestarted":instancesRestarted,
-                                "elapsedtime": '{0:%S}'.format(elapsedTime)
                         }
                         printinfo.PrintTestResults(testStartTime,testStopTime, instancesRestarted, elapsedTime)
                         notification.SendEmailNotification(notifyMessage)

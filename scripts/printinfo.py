@@ -7,6 +7,7 @@
 #
 
 import boto3
+import json
 
 # -- Function: Print Starting Title on Screen
 #               Input:  None
@@ -47,11 +48,11 @@ def PrintListToScreen(aLst):
                 print(item)
 
 
-# -- Function: Print List Informatgion on Screen
-#               Input: A List of data
+# -- Function: Print Results of testings
+#               Input: JSON Results
 #               Return: None
 def PrintTestResults(startTime, endTime, numberRestarted,elapsedTime):
-        # The content of a list
+               
         print ("""\
 ******************************************************
                 Results of AWS Testing

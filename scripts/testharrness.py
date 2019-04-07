@@ -15,15 +15,6 @@ import datetime
 import printinfo
 import notification
 
-print ("""\
-******************************************************
-
-             Welcome to the Chaos Monkey 
-                  AWS Test Harness
-
-******************************************************
-""")
-
 #-------------------------------------------
 # Function Definitions
 #-------------------------------------------
@@ -44,7 +35,7 @@ def GetListOfRunningInstances(ec2Res):
 def GetListOfStartingInstances(ec2Res):
         # Get all running instances in the environment
         ec2Instances = ec2Res.instances.filter(
-                        Filters=[{'Name': 'instance-state-name', 'Values': ['starting']}])
+                        Filters=[{'Name': 'instance-state-name', 'Values': ['pending']}])
         instanceList = [instance for instance in ec2Instances]
         return instanceList
 
@@ -75,12 +66,17 @@ def TerminateInstances(ec2Res,terminateLst):
         ec2Res.instances.filter(InstanceIds=terminateLst).terminate()
 
 #-------------------------------------------
+# Print Start Title on Screen
+printinfo.PrintTitle()
 
 # Setup an EC2 Client
 ec2Client = boto3.client('ec2')
 
 # Setup an EC2 Resource
 ec2Resource = boto3.resource('ec2')
+
+# Setup Test Timeout value in Seconds
+testTimeoutValue = 
 
 # Get List of Running Instances
 instanceRunList = GetListOfRunningInstances(ec2Resource)
@@ -95,7 +91,7 @@ else:
         print ("""\
 There are ZERO instances running in your environment
         """)
-print ("============================================================")
+        print ("============================================================")
 
 # Ask user for input to select the number of machines to disrupt
 iNumberInstancesToDisrupt = -1
@@ -118,14 +114,54 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
         # Terminate Instances
         TerminateInstances(ec2Resource,disruptList)
 
+
         # Start Time to determine how long it takes to recover the system
-        startTime = datetime.datetime.now()
+        testStartTime = datetime.datetime.now()
+        
 
         # Get List of Running Instances
         instanceRunList = GetListOfRunningInstances(ec2Resource)
+        testStartNumRunning = runningListNum = len(instanceRunList)
 
         # Print Instance Information to Screen
-        PrintInformationToScreen(instanceRunList)
+        printinfo.PrintInformationToScreen(instanceRunList)
 
         # Monitor the environment until machines have been recovered
+        print ("\n\nAWS HA is recovering your instances, please wait for this to complete")
+        print ("")
+        timedout=False
+        while runningListNum != numInstancesRunning and timedout == False:
+                
+                # Get the list of instances in a starting state
+                startingList = GetListOfStartingInstances(ec2Resource)
+
+                # Get the list of instances in a running state
+                instanceRunList = GetListOfRunningInstances(ec2Resource)
+
+                # Get the number of instances in a list
+                runningListNum = len(instanceRunList)
+                startingListNum = len(startingList)
+
+                # Add a time out to ensure the testing does not run forever
+                if datetime.datetime.now() > testStartTime + datetime.timedelta(seconds=10):
+                        timedout = True
+                        print ("Timed Out !!!!")
+        else:
+                # Perform Calculations when the tests stop
+                testStopTime = datetime.datetime.now()
+                instancesRestarted = runningListNum - testStartNumRunning
+                elapsedTime = testStopTime - testStartTime
+                if not timedout:
+                        notifyMessage = {
+                                "starttime" : '{0:%Y-%m-%d %H:%M:%S}'.format(testStartTime),
+                                "endtime":'{0:%Y-%m-%d %H:%M:%S}'.format(testStopTime),
+                                "instancesrestarted":instancesRestarted,
+                                "elapsedtime": '{0:%S}'.format(elapsedTime)
+                        }
+                        printinfo.PrintTestResults(testStartTime,testStopTime, instancesRestarted, elapsedTime)
+                        notification.SendEmailNotification(notifyMessage)
+                        print ("The test has now stopped. There are %s instances running" % runningListNum)
+                else:
+                        print ("The test has TIMEDOUT")
+print ("============================================================")
 

@@ -5,10 +5,15 @@
 # 
 # This script will read the intances that are 
 # available in ECS
-#
+
+# import 3rd party / built-in modules
 import boto3
 import uuid
 import datetime
+
+# import custom modules
+import printinfo
+import notification
 
 print ("""\
 ******************************************************
@@ -42,26 +47,6 @@ def GetListOfStartingInstances(ec2Res):
                         Filters=[{'Name': 'instance-state-name', 'Values': ['starting']}])
         instanceList = [instance for instance in ec2Instances]
         return instanceList
-
-# -- Function: Print Instance Informatgion on Screen
-#               Input: List of Instances
-#               Return: None
-def PrintInformationToScreen(instLst):
-        print ("""\
-There are %s instances running your environment
-""" % len(instLst))
-
-        # Print the list of Instances to the screen
-        for instance in instLst:
-                print(instance.id, instance.public_ip_address, instance.state["Name"])
-
-# -- Function: Print Instance Informatgion on Screen
-#               Input: List of Instances
-#               Return: None
-def PrintListToScreen(aLst):
-        # Print the list of Instances to the screen
-        for item in aLst:
-                print(item)
 
 # -- Function: Randomly Select Instances to disrupt.
 #              The function will check if the id of the instance is in the list already
@@ -105,7 +90,7 @@ numInstancesRunning = len(instanceRunList)
 
 # Print the Instance Information on Screen
 if numInstancesRunning > 0 :
-        PrintInformationToScreen(instanceRunList)
+        printinfo.PrintInformationToScreen(instanceRunList)
 else:
         print ("""\
 There are ZERO instances running in your environment

@@ -64,6 +64,19 @@ def GetAutoScaleGroupInstances(groupname):
         instanceList = [instance for instance in i["Instances"]]
     return instanceList
 
+
+# -- Function: Get List of instances in an autoscale group
+#               Input: Autoscale Group Name
+#               Return: List of Dictionary values with instance Information
+def GetAutoScaleGroupInstancesByID(instanceIDs):
+    # Get all instances in an autoscaling group
+    instanceList=[]
+    autoScaleInfo = autoScaleClient.describe_auto_scaling_instances(InstanceIds=[instanceIDs])
+    for i in autoScaleInfo['AutoScalingInstances']:
+        instanceList = [instance for instance in i["Instances"]]
+    return instanceList
+
+
 # -- Function: Get List of instances in an autoscale group
 #               Input: Autoscale Group Name
 #               Return: Desired Size of Group

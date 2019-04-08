@@ -10,17 +10,23 @@
 import boto3
 import json
 
-client = boto3.client('sns')
+snsClient = boto3.client('sns')
 ARN='arn:aws:sns:eu-west-1:197110341471:AWS-Test-Results'
 
 #-------------------------------------------
 # Function Definitions
 #-------------------------------------------
+
+def GetTopicARN():
+    response = snsClient.list_topics()
+    print (response['Topics'])
+
+
 def SendEmailNotification(message):
     sendMessage = {
         'email': json.dumps(message)
     }
-    response = client.publish(
+    response = snsClient.publish(
         TargetArn=ARN,
         Message=json.dumps(sendMessage),
         Subject='AWS Chaos Monkey Test Results',
@@ -32,7 +38,7 @@ def SendSMSNotification(message):
     sendMessage = {
         'sms': json.dumps(message)
     }
-    response = client.publish(
+    response = snsClient.publish(
         TargetArn=ARN,
         Message=json.dumps(sendMessage),
         Subject='AWS Chaos Monkey Test Results',

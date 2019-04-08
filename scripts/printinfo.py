@@ -38,6 +38,22 @@ There are %s instances running your environment
         print ("============================================================")
 
 
+# -- Function: Print Instance Informatgion on Screen
+#               Input: List of Instances
+#               Return: None
+def PrintSAutoScaleGroupInfo(instLst):
+        print ("===========================================================================")
+        print ("Instance ID\t\t Health Status\t LifeCycleState\t Availability Zone")
+        print ("---------------------------------------------------------------------------")
+        
+        # Print the list of Instances to the screen
+        
+        for instance in instLst:
+                print("{0}\t {1}\t {2}\t {3}\t".format(instance["InstanceId"], instance["HealthStatus"], instance["LifecycleState"], instance["AvailabilityZone"]))
+        print ("""\
+\nThere are %s instances running your environment
+        """ % len(instLst))
+        print ("==========================================================================")
 
 # -- Function: Print List Informatgion on Screen
 #               Input: A List of data

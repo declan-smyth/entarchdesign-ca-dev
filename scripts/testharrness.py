@@ -1,10 +1,11 @@
-# #################################### #
+###############################################################################
 # Author: Declan Smyth
 # Email : declan.smyth@gmail.com
-# #################################### #
+###############################################################################
 # 
 # This script will read the intances that are 
 # available in ECS
+###############################################################################
 
 # import 3rd party / built-in modules
 import boto3
@@ -17,25 +18,24 @@ import printinfo
 import notification
 import awsinformation
 
-#-------------------------------------------
+###############################################################################
 # AWS Configuration Information
-#-------------------------------------------
+###############################################################################
 awsConfiguration = {
         "autoscalegroup_name": "EAD-AUTOSCALE-DECLANS-HA",
         "topic_arn": "arn:aws:sns:eu-west-1:197110341471:AWS-Test-Results"
 }
 
 
-#-------------------------------------------
+###############################################################################
 # Function Definitions
-#-------------------------------------------
-
+###############################################################################
 # -- Function: Randomly Select Instances to disrupt.
 #              The function will check if the id of the instance is in the list already
 #
 #               Input: List of Instances, Number to Select
 #               Return: Selected Instance IDs
-def RandomlySelectInstanceID(instLst, numSelected):
+def RandomlySelectASDInstanceID(instLst, numSelected):
         count=0
         disruptList = list()
         from random import randint
@@ -46,12 +46,14 @@ def RandomlySelectInstanceID(instLst, numSelected):
                         count+=1
         return disruptList
 
+
+###############################################################################
 # -- Function: Randomly Select Instances to disrupt.
 #              The function will check if the id of the instance is in the list already
 #
 #               Input: List of Instances, Number to Select
 #               Return: Selected Instance IDs
-def RandomlySelectInstances(instLst, numSelected):
+def RandomlySelectEC2Instances(instLst, numSelected):
         count=0
         disruptList = list()
         from random import randint
@@ -62,6 +64,8 @@ def RandomlySelectInstances(instLst, numSelected):
                         count+=1
         return disruptList
 
+
+###############################################################################
 # -- Function: Terminate Random Instances and Instance IDs
 #               Input: Number of Instances to Terminate
 #               Return: List of Instance IDs to Terminatated
@@ -71,6 +75,8 @@ def TerminateInstances(ec2Res,terminateLst):
                 print (instance)
         ec2Res.instances.filter(InstanceIds=terminateLst).terminate()
 
+
+###############################################################################
 # -- Function:  Calculate the timeout value for the tests based on
 #               i.   Number of instances to terminate
 #               ii.  ELB Health Checks
@@ -83,6 +89,8 @@ def CalculateTimeOutValue():
         print ("\n *** TEST TIMEOUT SET TO %s seconds ***" % testTimeoutValue)
         return testTimeoutValue 
 
+
+###############################################################################
 # -- Function:  Ask the user for the number of instances to disrupt
 #               Input: None
 #               Return: List of Instance IDs to Terminatated
@@ -101,7 +109,7 @@ def GetUserInput(max_running):
                         iNumberInstancesToDisrupt = -1
         return iNumberInstancesToDisrupt
 
-#-------------------------------------------
+###############################################################################
 # Print Start Title on Screen
 printinfo.PrintTitle()
 
@@ -111,22 +119,28 @@ ec2Client = boto3.client('ec2')
 # Setup an EC2 Resource
 ec2Resource = boto3.resource('ec2')
 
-# Get List of Running Instances
-instanceRunList = awsinformation.GetListOfRunningInstances()
-
-# Get Number of Instances Running
-numInstancesRunning = len(instanceRunList)
-
 # Get List of instances in the Auto Scale Group
 instanceListAutoScaleGrp = awsinformation.GetAutoScaleGroupInstances(awsConfiguration["autoscalegroup_name"])
+
+# Get List of instance IDs in the Auto Scale Group
+instanceIDListAutoScaleGrp = awsinformation.GetAutoScaleGroupInstancesIDs(awsConfiguration["autoscalegroup_name"])
 
 # Get Auto Scale Group Size information
 autoScaleGroupSize = awsinformation.GetAutoScaleGroupSize(awsConfiguration["autoscalegroup_name"])
 
+# Get List of Running Instances based on Conent of Auto Scale Group
+instanceFullList = awsinformation.GetListInstancesById(instanceIDListAutoScaleGrp)
+
+# Get List of Running Instances based on Conent of Auto Scale Group
+instanceRunList = awsinformation.GetListOfRunningInstancesById(instanceIDListAutoScaleGrp)
+
+# Get Number of Instances Running
+numInstancesRunning = len(instanceRunList)
+
 # Print the Instance Information on Screen
 if numInstancesRunning > 0 :
        printinfo.PrintSAutoScaleGroupInfo(instanceListAutoScaleGrp)
-       #printinfo.PrintInformationToScreen(instanceRunList)
+       printinfo.PrintInformationToScreen(instanceFullList)
 else:
         print ("""\
 There are ZERO instances running in your environment
@@ -137,15 +151,20 @@ There are ZERO instances running in your environment
 if numInstancesRunning > 0:       
         iNumberInstancesToDisrupt = GetUserInput(len(instanceRunList))
 
-# Select instances at random from the list to disrupt
-print ("============================================================")
-
+# If the user has selected a number to disrupt and there are instnaces in the Auto Scale Group
+# Start  to run the ddisruption tests
 if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
         # Select Instances to Terminate
-        disruptList = RandomlySelectInstances(instanceRunList,iNumberInstancesToDisrupt)
+        disruptList = RandomlySelectEC2Instances(instanceRunList,iNumberInstancesToDisrupt)
         
         # Get the number of instanace IDs selected to be terminated
         numInstancesToTerminate = len(disruptList)
+
+        # Print Test Start Message
+        printinfo.PrintTestStart(numInstancesToTerminate)
+
+        # Start Time to determine how long it takes to recover the system
+        testStartTime = datetime.datetime.now()
 
         # Calculate the timeout value based on the number of instances to terminate (in Seconds)
         testTimeoutValue = CalculateTimeOutValue()
@@ -153,12 +172,6 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
 
         # Terminate Instances
         TerminateInstances(ec2Resource,disruptList)
-
-        # Start Time to determine how long it takes to recover the system
-        testStartTime = datetime.datetime.now()
-
-        # Monitor the environment until machines have been recovered
-        print ("\n\nAWS HA is recovering your instances, please wait for this to complete\n")
 
         # Get List of Running Instances
         instanceRunList = awsinformation.GetListOfRunningInstances()
@@ -174,7 +187,8 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
                 startingList = awsinformation.GetListOfPendingInstances()
 
                 # Get the list of instances in a running state
-                instanceRunList = awsinformation.GetListOfRunningInstances()
+                instanceIDListAutoScaleGrp = awsinformation.GetAutoScaleGroupInstancesIDs(awsConfiguration["autoscalegroup_name"])
+                instanceRunList = awsinformation.GetListOfRunningInstancesById(instanceIDListAutoScaleGrp)
 
                 # Get the number of instances in a list
                 runningListNum = len(instanceRunList)
@@ -184,8 +198,8 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
                 if datetime.datetime.now() > testStartTime + datetime.timedelta(seconds=testTimeoutValue):
                         timedout = True
                         print ("Timed Out !!!!")
-                
-                time.sleep(60)
+                else:
+                        time.sleep(60)
         else:
                 # Perform Calculations when the tests stop
                 testStopTime = datetime.datetime.now()
@@ -197,16 +211,16 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
                 elapsedTime = testStopTime - testStartTime
 
                 # Check if the test timed out or completed within the expected time
+        
                 if not timedout:
                         testStatus="PASSED"
                         notifyMessage = {
                                 "starttime" : '{0:%Y-%m-%d %H:%M:%S}'.format(testStartTime),
                                 "endtime":'{0:%Y-%m-%d %H:%M:%S}'.format(testStopTime),
                                 "instancesrestarted":instancesRestarted,
+                                "elapsedtime": str(elapsedTime),
                                 "teststatus": testStatus
                         }
-                        printinfo.PrintTestResults(testStartTime,testStopTime, instancesRestarted, elapsedTime)
-                        #notification.SendEmailNotification(notifyMessage)
                         print ("The test has now  completed. There are %s instances running" % runningListNum)
                 else:
                         testStatus="FAILED:TIMED-OUT"
@@ -214,8 +228,20 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
                                 "starttime" : '{0:%Y-%m-%d %H:%M:%S}'.format(testStartTime),
                                 "endtime":'{0:%Y-%m-%d %H:%M:%S}'.format(testStopTime),
                                 "instancesrestarted":instancesRestarted,
+                                "elapsedtime":str(elapsedTime),
                                 "teststatus":testStatus
                         }
-                        print ("The test has TIMEDOUT")
-print ("============================================================")
+                        print ("The test has TIMEDOUT. Your instances did not restart within the time period allowed.")
+
+                # Print Infomration on screen
+                printinfo.PrintTestResult(notifyMessage)
+                
+                # Print Instance Information to Screen
+                printinfo.PrintInformationToScreen(instanceRunList)
+                
+                # Send Notifications of test results
+                notification.SendEmailNotification(notifyMessage)
+                notification.SendSMSNotification(notifyMessage)
+# Print a line at the end... 
+printinfo.PrintThickLine()
 

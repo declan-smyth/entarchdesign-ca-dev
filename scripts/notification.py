@@ -24,8 +24,10 @@ def GetTopicARN():
 
 def SendEmailNotification(message):
     sendMessage = {
+        'default':"",
         'email': json.dumps(message)
     }
+
     response = snsClient.publish(
         TargetArn=ARN,
         Message=json.dumps(sendMessage),
@@ -36,6 +38,7 @@ def SendEmailNotification(message):
 
 def SendSMSNotification(message):
     sendMessage = {
+        'default': "",
         'sms': json.dumps(message)
     }
     response = snsClient.publish(

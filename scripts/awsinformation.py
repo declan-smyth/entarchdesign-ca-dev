@@ -53,8 +53,6 @@ def GetListOfPendingInstances():
         instanceList = [instance for instance in ec2Instances]
         return instanceList
 
-
-
 # -- Function: Get List of instances in an autoscale group
 #               Input: Autoscale Group Name
 #               Return: List of Dictionary values with instance Information
@@ -75,3 +73,13 @@ def GetAutoScaleGroupSize(groupname):
         for i in autoScaleInfo['AutoScalingGroups']:
             groupsize = dict(desired=i['DesiredCapacity'], max=i['MaxSize'],min=i['MinSize'])
         return groupsize
+
+# -- Function: Get Autoscale Target Group
+#               Input: Autoscale Group Name
+#               Return: ARN of Target Group
+def GetAutoScaleGroupTargetGrp(groupname):
+        autoScaleInfo = autoScaleClient.describe_load_balancer_target_groups(AutoScalingGroupName=groupname)
+        for i in autoScaleInfo['LoadBalancerTargetGroups']:
+            TargetGroupARN = i['LoadBalancerTargetGroupARN']
+        return TargetGroupARN
+

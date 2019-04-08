@@ -10,6 +10,7 @@
 import boto3
 import uuid
 import datetime
+import time 
 
 # import custom modules
 import printinfo
@@ -134,7 +135,7 @@ There are ZERO instances running in your environment
 
 # Ask user for input to select the number of machines to disrupt
 if numInstancesRunning > 0:       
-        GetUserInput(len(instanceRunList))
+        iNumberInstancesToDisrupt = GetUserInput(len(instanceRunList))
 
 # Select instances at random from the list to disrupt
 print ("============================================================")
@@ -142,13 +143,23 @@ print ("============================================================")
 if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
         # Select Instances to Terminate
         disruptList = RandomlySelectInstances(instanceRunList,iNumberInstancesToDisrupt)
+        
+        # Get the number of instanace IDs selected to be terminated
+        numInstancesToTerminate = len(disruptList)
+
+        # Calculate the timeout value based on the number of instances to terminate (in Seconds)
+        testTimeoutValue = CalculateTimeOutValue()
+        timedout=False
 
         # Terminate Instances
         TerminateInstances(ec2Resource,disruptList)
 
         # Start Time to determine how long it takes to recover the system
         testStartTime = datetime.datetime.now()
-        
+
+        # Monitor the environment until machines have been recovered
+        print ("\n\nAWS HA is recovering your instances, please wait for this to complete\n")
+
         # Get List of Running Instances
         instanceRunList = awsinformation.GetListOfRunningInstances()
         testStartNumRunning = runningListNum = len(instanceRunList)
@@ -156,14 +167,7 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
         # Print Instance Information to Screen
         printinfo.PrintInformationToScreen(instanceRunList)
 
-        # Calculate the timeout value based on the number of instances to terminate (in Seconds)
-        testTimeoutValue = CalculateTimeOutValue()
-        timedout=False
-
-        # Monitor the environment until machines have been recovered
-        print ("\n\nAWS HA is recovering your instances, please wait for this to complete")
-        print ("")
-
+        
         while runningListNum != numInstancesRunning and timedout == False:
                 
                 # Get the list of instances in a starting state
@@ -185,18 +189,33 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
         else:
                 # Perform Calculations when the tests stop
                 testStopTime = datetime.datetime.now()
+
+                # Get the number of instances that were created
                 instancesRestarted = runningListNum - testStartNumRunning
+
+                # Calculate the elapsed time for the test
                 elapsedTime = testStopTime - testStartTime
+
+                # Check if the test timed out or completed within the expected time
                 if not timedout:
+                        testStatus="PASSED"
                         notifyMessage = {
                                 "starttime" : '{0:%Y-%m-%d %H:%M:%S}'.format(testStartTime),
                                 "endtime":'{0:%Y-%m-%d %H:%M:%S}'.format(testStopTime),
                                 "instancesrestarted":instancesRestarted,
+                                "teststatus": testStatus
                         }
                         printinfo.PrintTestResults(testStartTime,testStopTime, instancesRestarted, elapsedTime)
                         #notification.SendEmailNotification(notifyMessage)
-                        print ("The test has now stopped. There are %s instances running" % runningListNum)
+                        print ("The test has now  completed. There are %s instances running" % runningListNum)
                 else:
+                        testStatus="FAILED:TIMED-OUT"
+                        notifyMessage = {
+                                "starttime" : '{0:%Y-%m-%d %H:%M:%S}'.format(testStartTime),
+                                "endtime":'{0:%Y-%m-%d %H:%M:%S}'.format(testStopTime),
+                                "instancesrestarted":instancesRestarted,
+                                "teststatus":testStatus
+                        }
                         print ("The test has TIMEDOUT")
 print ("============================================================")
 

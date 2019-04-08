@@ -51,7 +51,7 @@ def PrintSAutoScaleGroupInfo(instLst):
         for instance in instLst:
                 print("{0}\t {1}\t {2}\t {3}\t".format(instance["InstanceId"], instance["HealthStatus"], instance["LifecycleState"], instance["AvailabilityZone"]))
         print ("""\
-\nThere are %s instances running your environment
+\nThere are %s instances your auto scale group
         """ % len(instLst))
         print ("==========================================================================")
 

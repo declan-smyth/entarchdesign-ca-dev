@@ -2,3 +2,9 @@ Tasks-To-Complete.txt
 scripts/__pycache__/printinfo.cpython-37.pyc
 scripts/__pycache__/notification.cpython-37.pyc
 scripts/__pycache__/awsinformation.cpython-37.pyc
+infra/terraform.tfvars
+infra/output.plan
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+infra/.terraform/plugins/windows_amd64/lock.json
+infra/.terraform/plugins/windows_amd64/terraform-provider-aws_v2.5.0_x4.exe

@@ -109,7 +109,6 @@ def GetAutoScaleGroupInstancesIDs(groupname):
                 instanceIDList.append(instance["InstanceId"])
     return  instanceIDList
 
-
 ###############################################################################
 # -- Function: Get List of instances in an autoscale group
 #               Input: Autoscale Group Name

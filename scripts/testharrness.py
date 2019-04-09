@@ -22,8 +22,8 @@ import awsinformation
 # AWS Configuration Information
 ###############################################################################
 awsConfiguration = {
-        "autoscalegroup_name": "EAD-AUTOSCALE-DECLANS-HA",
-        "topic_arn": "arn:aws:sns:eu-west-1:197110341471:AWS-Test-Results"
+        "autoscalegroup_name": "ead-ca-autoscalegroup",
+        "topic_arn": "arn:aws:sns:eu-west-1:197110341471:ead-ca-test-results-notify"
 }
 
 
@@ -184,10 +184,11 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
         while runningListNum != numInstancesRunning and timedout == False:
                 
                 # Get the list of instances in a starting state
-                startingList = awsinformation.GetListOfPendingInstances()
+                instanceIDListAutoScaleGrp = awsinformation.GetAutoScaleGroupInstancesIDs(awsConfiguration["autoscalegroup_name"])
+                startingList = awsinformation.GetListOfPendingInstancesById(instanceIDListAutoScaleGrp)
 
                 # Get the list of instances in a running state
-                instanceIDListAutoScaleGrp = awsinformation.GetAutoScaleGroupInstancesIDs(awsConfiguration["autoscalegroup_name"])
+                #instanceIDListAutoScaleGrp = awsinformation.GetAutoScaleGroupInstancesIDs(awsConfiguration["autoscalegroup_name"])
                 instanceRunList = awsinformation.GetListOfRunningInstancesById(instanceIDListAutoScaleGrp)
 
                 # Get the number of instances in a list
@@ -199,6 +200,10 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
                         timedout = True
                         print ("Timed Out !!!!")
                 else:
+                        printinfo.PrintThinLine()
+                        tmp=awsinformation.GetAutoScaleGroupInstances(awsConfiguration["autoscalegroup_name"])
+                        print (tmp)
+                        printinfo.PrintThinLine()
                         time.sleep(60)
         else:
                 # Perform Calculations when the tests stop

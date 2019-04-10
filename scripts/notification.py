@@ -11,45 +11,66 @@ import boto3
 import json
 
 snsClient = boto3.client('sns')
-ARN='arn:aws:sns:eu-west-1:197110341471:AWS-Test-Results'
-
+lambdaClient = boto3.client('lambda')
+lambdaNotifyARN = 'arn:aws:lambda:eu-west-1:197110341471:function:send_notification_of_results'
 #-------------------------------------------
 # Function Definitions
 #-------------------------------------------
 
+###############################################################################
+# -- Function: 
+#               Input:  
+#               Return: 
 def GetTopicARN():
     response = snsClient.list_topics()
     print (response['Topics'])
 
 
-def SendEmailNotification(message):
+###############################################################################
+# -- Function: 
+#               Input:  
+#               Return: 
+def SendEmailNotification(message,topic_arn_email):
     sendMessage = {
         'default':"",
         'email': json.dumps(message)
     }
 
     response = snsClient.publish(
-        TargetArn=ARN,
+        TargetArn=topic_arn_email,
         Message=json.dumps(sendMessage),
-        Subject='AWS Chaos Monkey Test Results',
+        Subject='Declan Smyth - AWS Chaos Monkey Test Results',
         MessageStructure='json'
     )
 
 
-def SendSMSNotification(message):
+###############################################################################
+# -- Function: 
+#               Input:  
+#               Return: 
+def SendSMSNotification(message, topic_arn_sms):
     sendMessage = {
         'default': "",
         'sms': json.dumps(message)
     }
     response = snsClient.publish(
-        TargetArn=ARN,
+        TargetArn=topic_arn_sms,
         Message=json.dumps(sendMessage),
-        Subject='AWS Chaos Monkey Test Results',
+        Subject='Declan Smyth - AWS Chaos Monkey Test Results',
         MessageStructure='json'
     )
 
-def SendAllNotification(message):
-    SendEmailNotification(message)
-    SendSMSNotification(message)
+###############################################################################
+# -- Function: 
+#               Input:  
+#               Return: 
+def SendNotification(message):
 
-#-------------------------------------------
+    response = lambdaClient.invoke(FunctionName=lambdaNotifyARN,
+                                    InvocationType='Event',
+                                    ClientContext='EAD-CA-AWSTEST-APP',
+                                    Payload=json.dumps(message))
+    if response['StatusCode'] != "200":
+        print ("SendNotification: Error Code: %s \n Please check AWS logs for further information.",response['StatusCode'])
+    
+    

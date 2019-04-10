@@ -18,7 +18,7 @@ def PrintTitle():
         PrintThickLine()
         print ("""\
 
-             \tWelcome to the Chaos Monkey 
+             \t     Welcome to the Chaos Monkey 
                   \tAWS Test Harness
         """)
         PrintThickLine()
@@ -58,8 +58,6 @@ def PrintInformationToScreen(instLst):
 \nThere are %s instances running your environment
         """ % len(instLst))
         PrintThickLine()
-
-
 
 
 ###############################################################################
@@ -105,9 +103,21 @@ def PrintTestResult(notifymessage):
                 Results of Test Run
         """)
         PrintThinLine()
-        print (
-            "Start Time:          {0}\nEnd Time:            {1}\nInstances Restarted: {2}\nElapsed Time:        {3}\nTest Status: {4}".format(
-            notifymessage['starttime'], notifymessage['endtime'], notifymessage['instancesrestarted'], notifymessage['elapsedtime'], notifymessage['teststatus'])
+        print (             
+            "Start Time:          {0}\n \
+             End Time:            {1}\n \
+             Instances Stopped:   {2}\n \
+             Instances Restarted: {3}\n \
+             Elapsed Time:        {4}\n \
+             Test Status:         {5}\n \
+             New Instance IDs:    {6}\n".format(
+            notifymessage['starttime'], 
+            notifymessage['endtime'], 
+            notifymessage['instancesstopped'],
+            notifymessage['instancesrestarted'], 
+            notifymessage['elapsedtime'], 
+            notifymessage['teststatus'], 
+            notifymessage['newinstanceid'])
         )
         PrintThickLine()
 
@@ -117,11 +127,13 @@ def PrintTestResult(notifymessage):
 # -- Function: Print Results of testings
 #               Input: JSON Results
 #               Return: None
-def PrintTestStart(numDisrupt):
+def PrintTestStart(numDisrupt, disruptionList):
         PrintThickLine()
         print ("""\
-                \t Starting Test Run
+                \t      Starting Test Run
         """)
         PrintThinLine()
-        print ("\tThis test will terminate {0} instances and monitor re-instatement time".format(numDisrupt))
+        print ("This test will terminate {0} instances and monitor re-instatement time".format(numDisrupt))
+        print ("\nThe following instances will be disrupted:\n")
+        print ("\t%s\n" %disruptionList)
         PrintThickLine()

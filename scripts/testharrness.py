@@ -273,7 +273,7 @@ if iNumberInstancesToDisrupt > 0 and numInstancesRunning > 0:
                 
                 # Send Notifications of test results
                 notification.SendNotification(notifyMessage)
-                #notification.SendEmailNotification(notifyMessage, awsConfiguration['topic_arn_email'])
+                notification.SendEmailNotification(notifyMessage, awsConfiguration['topic_arn_email'])
                 notification.SendSMSNotification(notifyMessage, awsConfiguration['topic_arn_sms'])
 # Print a line at the end... 
 printinfo.PrintThickLine()

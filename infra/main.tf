@@ -42,10 +42,10 @@ resource "aws_lb_target_group" "EAD-CA-TARGETGRP" {
   
   
   health_check {
-    healthy_threshold   = 5 # Number of consecutive passing checks for Healthy 
+    healthy_threshold   = 2 # Number of consecutive passing checks for Healthy 
     unhealthy_threshold = 2 # Number of consecutive failing checks for UnHealthy
-    timeout             = 5 # Time in Seconds that no-response equals UnHealthy
-    interval            = 30 # Time Between Health Checks on an instance
+    timeout             = 2 # Time in Seconds that no-response equals UnHealthy
+    interval            = 5 # Time Between Health Checks on an instance
     protocol            = "${var.PROTOCOL_HTTP}"
     matcher             = "200" # Codes to indicate a successful responce
   }
@@ -87,8 +87,8 @@ resource "aws_autoscaling_group" "EAD-CA-AUTOSCALEGRP" {
   desired_capacity          = "${var.NUMBER_OF_INSTANCES}"
 
   health_check_type         = "ELB"
-  health_check_grace_period = "300"
-  default_cooldown          = "60"
+  health_check_grace_period = "60"
+  default_cooldown          = "5" # Time between scaling activities
 
   target_group_arns         = ["${aws_lb_target_group.EAD-CA-TARGETGRP.arn}"]
   
@@ -210,12 +210,13 @@ resource "aws_security_group" "EAD-CA-SECURITYGROUP-LOADBALANCER" {
 #--------------------------------------------------------
 resource "aws_sns_topic" "EAD-CA-SNS-TOPIC-TESTRESULT" {
   name                = "${var.KEY_NAME}-test-results-notify"
-  display_name        = "${var.KEY_NAME} Test Results Notificiation"
+  display_name        = "${var.CA_AUTHOR_NAME} - ${var.KEY_NAME} - Test Results Notificiation"
 }
 
 resource "aws_sns_topic_subscription" "EAD-CA-SNS-SUBSCRIPTION-TESTRESULT" {
   topic_arn               = "${aws_sns_topic.EAD-CA-SNS-TOPIC-TESTRESULT.arn}"
   protocol                = "sms"
-  endpoint                = "${var.CA_AUTHOR_PHONE}"
+  endpoint                = "${var.SUBSCRIBER_PHONE}"
   endpoint_auto_confirms  = true
 }
+

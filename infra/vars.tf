@@ -21,11 +21,11 @@ variable "PROTOCOL_HTTP" {
 }
 
 variable "PORT_HTTP" {
-  default = "80"
+  default = 80
 }
 
 variable "PORT_SSL" {
-  default = "22"
+  default = 22
 }
 
 variable "INSTANCE_TYPE" {
@@ -49,15 +49,26 @@ variable "CA_AUTHOR_PHONE" {
   default = ""
 }
 
-variable "SUBSCRIBER_EMAIL" {
-  description = "This is the email address for subscription to the topic operator"
-  default = ""
-}
-
 variable "CA_ENVIRONMENT" {
   default = "MSc. in DevOps"
 }
 
 variable "CA_PURPOSE" {
   default = "Ent. Arch. Design - Assignment"
+}
+
+
+#--------------------------------------------------------
+# NOTIFICATION SUBSCRIPTION CONFIGURATION
+#
+#
+#--------------------------------------------------------
+variable "SUBSCRIBER_EMAIL" {
+  description = "This is the email address for subscription to the topic operator"
+  default = ""
+}
+
+variable "SUBSCRIBER_PHONE" {
+  description = "This is the MOBILE-PHONE number for subscription to the topic operator"
+  default = ""
 }

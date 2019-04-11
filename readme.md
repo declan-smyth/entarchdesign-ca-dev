@@ -43,23 +43,19 @@ The following software will be required to be installed on your system to run th
 * GIT
 * Python 3.7
 * AWS Command Line Interface (CLI)
+* Terraform
 
-#### AWS Environment Creation
-
+#### Installing Terraform 
 You must download and deploy Terraform to create the test environment. The software is availalbe from HashiCorp at this link: <https://www.terraform.io/downloads.html>
 
-### Source Code Repository
+To install Terraform on a **Linux Server** perform the following steps:
 
-All source code is maintained in a GIT repository hosted on GITHub. To download the repository run the following command in your preferred directory structure
-`git clone https://github.com/declan-smyth/ent-arch-design-ca-dev.git`
-
-The repository has the following layout
-
-| Direcory             | Purpose                                                   |
-|----------------------|-----------------------------------------------------------|
-| scripts              | Contains the python scripts for runnning testing          |
-| infra                | Contains the terraform files for creating the environment |
-| images               | Images that are used in the readme files                  |
+1. Install Zip Unzip - `sudo yum install -y zip unzip`
+2. Create a folder for the software download - `mkdir download`
+3. Download the Terraform software into the download folder - `wget https://releases.hashicorp.com/terraform/0.11.13/terraform_0.11.13_linux_amd64.zip`
+4. Inflate the downloaded zip file - `unzip terraform_0.11.13_linux_amd64.zip`
+5. Move the **terraform** folder to /usr/local/bin - `mv terraform /usr/local/bin`
+6. Test that Terraform is installed, run the command: `terraform --version`
 
 ### Setup Python
 
@@ -67,9 +63,7 @@ To run test harness you need to install the following libraries:
 
 * boto3 - `pip3 install boto3`
 
-### Setting up AWS
-
-#### AWS CLI Setup
+### Setting up AWS Credentials
 
 To use the AWS command in boto3 you must configure your credentials. The easiest way to do this is to use the AWS CLI to perform this operation.
 `aws configure`
@@ -80,20 +74,50 @@ Information about your AWS Account is required
 * AWS Secret Access Key
 * Default regaion name
 
-AWS have detailed instructions listed here: <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>
+AWS have detailed instructions listed here: <https://docs.aws.amazon.com/cli/latest/usergude/cli-configure-files.html>
+
+## Running the Tests
+
+There are a number of steps to running the scripts to test the AWS High Availability implementations
 
 ### Creating the required environment
 
 To set up your environment you must do the following:
 
-1 Create & Configure a new file called *terraform.tfvars*. This file is used to provide configuration information for your AWS Environment. You must provide the following configuration infomration:
+#### Creating a tfvars file
+Create & Configure a new file called *terraform.tfvars*. This file is used to provide configuration information for your AWS Environment. You must provide the following configuration infomration:
  * ACCESS_KEY
  * SECRET_KEY
  * SUBSCRIBER_EMAIL
  * SUBSCRIBER_PHONE
  * NUMBER_OF_INSTANCES
-If this information is missing, the environment will be get created successfully
+If this information is missing, the environment will be get created successfully. The file can be created with a text editor of your choice
 
-2 Goto the *infra* folder and execute *terraform init*
+**NOTE:** *Do not commit your AWS **ACCESS KEY**  or **Secret Key** into a repository that will be published*
+
+#### Initialize Terraform
+
+In the folder where the git repo has been cloned, go to the *infra* folder
+
+Run the command `terraform init`.
+This will download the required provider plugins, in this case the *aws* provider
+
+#### Deploy the Environment
+
+The deployment of the environment is performed in two steps
+
+1. Verify and Validate the depoyment using the command `terraform plan -out "out.plan"`
+2. Apply the setup on the file *out.plan* using the command `terraform apply out.plan`
+
+Status and confirmation will be displayed on screen indicating progress. 
 
 ### Executing the Tests
+
+Before the tests are  executed the following requirements must be met:
+
+* Python and boto3 installed
+* AWS Credentials Configured
+* Deployed the test environment
+
+If these have not been done, the test will fail
+

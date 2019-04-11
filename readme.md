@@ -62,9 +62,9 @@ To install Terraform in a **Windows Environment** perform the following steps:
 1. Download the installation software from <https://www.terraform.io/downloads.html>
 2. Unzip the contents into a location
 3. Update the System Environmental Variables
- * Add a new system variable called : TERRAFORM
- * Set its value equal to the location you extracted the downloaded zip file
- * Add %TERRAFORM% to the PATH environmental variable
+  * Add a new system variable called : TERRAFORM
+  * Set its value equal to the location you extracted the downloaded zip file
+  * Add %TERRAFORM% to the PATH environmental variable
 
 ### Setup Python
 
@@ -123,11 +123,9 @@ Status and confirmation will be displayed on screen indicating progress.
 ### Executing the Tests
 
 Before the tests are  executed the following requirements must be met:
-
-* Python and boto3 installed
-* AWS Credentials Configured
-* Deployed the test environment
-
+> Python and boto3 installed
+> AWS Credentials Configured
+> Deployed the test environment
 If these have not been done, the test will fail
 
 To executes the tests goto the *scripts* folder in the location your cloned the git repository

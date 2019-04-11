@@ -44,6 +44,7 @@ The following software will be required to be installed on your system to run th
 
 * GIT
 * Python 3.7
+* AWS Command Line Interface (CLI)
 
 #### AWS Environment Creation
 
@@ -62,7 +63,28 @@ The repository has the following layout
 | infra                | Contains the terraform files for creating the environment |
 | images               | Images that are used in the readme files                  |
 
+#### Setup Python
+
+To run test harness you need to install the following libraries:
+
+* boto3 - `sudo pip3 install boto3`
+
 ### Setting up AWS
+
+#### AWS CLI Setup
+
+To use the AWS command in boto3 you must configure your credentials. The easiest way to do this is to use the AWS CLI to perform this operation. 
+`aws configure`
+
+Information about your AWS Account is required
+
+* AWS Access Key ID
+* AWS Secret Access Key
+* Default regaion name
+
+AWS have detailed instructions listed here: <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>
+
+#### Creating the required environment 
 
 To set up your environment you must do the following:
 

@@ -36,9 +36,7 @@ In this setup it will maintain the group at a fixed size and is not scalling in 
 
 ## Environment Setup Instructions
 
-### Pre-Requisites
-
-#### General Software
+### Pre-Requisites Software
 
 The following software will be required to be installed on your system to run the AWS High-Availability Testing:
 
@@ -50,10 +48,10 @@ The following software will be required to be installed on your system to run th
 
 You must download and deploy Terraform to create the test environment. The software is availalbe from HashiCorp at this link: <https://www.terraform.io/downloads.html>
 
-#### Source Code Repository
+### Source Code Repository
 
 All source code is maintained in a GIT repository hosted on GITHub. To download the repository run the following command in your preferred directory structure
-`git clone https://github.com/declan-smyth/ent-arch-design-ca-dev`
+`git clone https://github.com/declan-smyth/ent-arch-design-ca-dev.git`
 
 The repository has the following layout
 
@@ -63,11 +61,11 @@ The repository has the following layout
 | infra                | Contains the terraform files for creating the environment |
 | images               | Images that are used in the readme files                  |
 
-#### Setup Python
+### Setup Python
 
 To run test harness you need to install the following libraries:
 
-* boto3 - `sudo pip3 install boto3`
+* boto3 - `pip3 install boto3`
 
 ### Setting up AWS
 
@@ -84,19 +82,18 @@ Information about your AWS Account is required
 
 AWS have detailed instructions listed here: <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>
 
-#### Creating the required environment 
+### Creating the required environment
 
 To set up your environment you must do the following:
 
 1 Create & Configure a new file called *terraform.tfvars*. This file is used to provide configuration information for your AWS Environment. You must provide the following configuration infomration:
-  * ACCESS_KEY 
-  * SECRET_KEY 
-  * SUBSCRIBER_EMAIL 
-  * SUBSCRIBER_PHONE 
-  * NUMBER_OF_INSTANCES
-  If this information is missing, the environment will be get created successfully
+ * ACCESS_KEY
+ * SECRET_KEY
+ * SUBSCRIBER_EMAIL
+ * SUBSCRIBER_PHONE
+ * NUMBER_OF_INSTANCES
+If this information is missing, the environment will be get created successfully
 
 2 Goto the *infra* folder and execute *terraform init*
-3
 
 ### Executing the Tests

@@ -120,12 +120,15 @@ The deployment of the environment is performed in two steps
 
 Status and confirmation will be displayed on screen indicating progress. 
 
-### Executing the Tests
+#### Warning...
 
 Before the tests are  executed the following requirements must be met:
-> Python and boto3 installed
-> AWS Credentials Configured
-> Deployed the test environment
+
+> * Python and boto3 installed
+> * AWS Credentials Configured
+> * Deployed the test environment
+
+### Executing the tests
 If these have not been done, the test will fail
 
 To executes the tests goto the *scripts* folder in the location your cloned the git repository

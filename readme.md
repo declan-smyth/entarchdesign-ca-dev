@@ -10,7 +10,7 @@
 
 ## Introduction
 
-The AWS High Availability environmnet is created using terraform to create the required infrastruction to test the re-instatement capabilities of Amazon Web Services' ability to maintain a high-availabilty environment 
+The AWS High Availability environmnet is created using terraform to create the required infrastruction to test the re-instatement capabilities of Amazon Web Services' ability to maintain a high-availabilty environment
 
 This is the high-level environemnt configuration that is implemented
 
@@ -71,7 +71,7 @@ To run test harness you need to install the following libraries:
 
 #### AWS CLI Setup
 
-To use the AWS command in boto3 you must configure your credentials. The easiest way to do this is to use the AWS CLI to perform this operation. 
+To use the AWS command in boto3 you must configure your credentials. The easiest way to do this is to use the AWS CLI to perform this operation.
 `aws configure`
 
 Information about your AWS Account is required

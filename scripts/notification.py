@@ -13,6 +13,7 @@ import json
 snsClient = boto3.client('sns')
 lambdaClient = boto3.client('lambda')
 lambdaNotifyARN = 'arn:aws:lambda:eu-west-1:197110341471:function:send_notification_of_results'
+
 #-------------------------------------------
 # Function Definitions
 #-------------------------------------------

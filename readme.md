@@ -72,7 +72,8 @@ To set up your environment you must do the following:
   * SUBSCRIBER_EMAIL 
   * SUBSCRIBER_PHONE 
   * NUMBER_OF_INSTANCES
-  If this information is missing, the environment will be get created successfully
+ 
+If this information is missing, the environment will be get created successfully
 
 2 Goto the *infra* folder and execute *terraform init*
 3

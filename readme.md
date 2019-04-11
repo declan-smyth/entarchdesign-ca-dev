@@ -48,7 +48,7 @@ The following software will be required to be installed on your system to run th
 #### Installing Terraform 
 You must download and deploy Terraform to create the test environment. The software is availalbe from HashiCorp at this link: <https://www.terraform.io/downloads.html>
 
-To install Terraform on a **Linux Server** perform the following steps:
+To install Terraform in a **Linux Environment** perform the following steps:
 
 1. Install Zip Unzip - `sudo yum install -y zip unzip`
 2. Create a folder for the software download - `mkdir download`
@@ -56,6 +56,15 @@ To install Terraform on a **Linux Server** perform the following steps:
 4. Inflate the downloaded zip file - `unzip terraform_0.11.13_linux_amd64.zip`
 5. Move the **terraform** folder to /usr/local/bin - `mv terraform /usr/local/bin`
 6. Test that Terraform is installed, run the command: `terraform --version`
+
+To install Terraform in a **Windows Environment** perform the following steps:
+
+1. Download the installation software from <https://www.terraform.io/downloads.html>
+2. Unzip the contents into a location
+3. Update the System Environmental Variables
+ * Add a new system variable called : TERRAFORM
+ * Set its value equal to the location you extracted the downloaded zip file
+ * Add %TERRAFORM% to the PATH environmental variable
 
 ### Setup Python
 
@@ -93,14 +102,14 @@ Create & Configure a new file called *terraform.tfvars*. This file is used to pr
  * NUMBER_OF_INSTANCES
 If this information is missing, the environment will be get created successfully. The file can be created with a text editor of your choice
 
-**NOTE:** *Do not commit your AWS **ACCESS KEY**  or **Secret Key** into a repository that will be published*
+> **NOTE:** *Do not commit your AWS **ACCESS KEY**  or **Secret Key** into a repository that will be published*
 
 #### Initialize Terraform
 
 In the folder where the git repo has been cloned, go to the *infra* folder
 
-Run the command `terraform init`.
-This will download the required provider plugins, in this case the *aws* provider
+* Run the command `terraform init`.
+* This will download the required provider plugins, in this case the *aws* provider
 
 #### Deploy the Environment
 
@@ -121,3 +130,6 @@ Before the tests are  executed the following requirements must be met:
 
 If these have not been done, the test will fail
 
+To executes the tests goto the *scripts* folder in the location your cloned the git repository
+
+From this folder, run the comman - `python3 testharrness.py`

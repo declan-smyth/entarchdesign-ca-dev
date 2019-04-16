@@ -11,3 +11,4 @@ azure.credentials
 lock.json
 terraform-provider-azurerm_v1.24.0_x4.exe
 terraform-provider-random_v2.1.1_x4.exe
+terraform-provider-aws_v2.6.0_x4.exe

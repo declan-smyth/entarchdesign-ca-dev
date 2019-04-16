@@ -5,3 +5,7 @@ provider "azurerm" {
     client_secret   = "${var.ARM_CLIENT_SECRET}"
     tenant_id       = "${var.ARM_TENANT_ID}"
 }
+
+provider "random" {
+    version = "~> 2.1"
+}

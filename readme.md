@@ -1,6 +1,6 @@
 # AWS High Availability Setup Instructions
 
-## Author Information
+### Author Information
 
 | Name          | Email                  |
 | ------------- | ---------------------- |
@@ -128,8 +128,10 @@ Before the tests are  executed the following requirements must be met:
 > * AWS Credentials Configured
 > * Deployed the test environment
 
-### Executing the tests
 If these have not been done, the test will fail
+
+### Executing the tests
+
 
 To executes the tests goto the *scripts* folder in the location your cloned the git repository
 

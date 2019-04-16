@@ -2,9 +2,9 @@
 
 ### Author Information
 
-| Name          | Email                  |
-| ------------- | ---------------------- |
-| Declan Smyth  | declan.smyth@gmail.com |
+| Name | Student ID | Email Address |
+| ---- | ---------- | ------------- |
+| Declan Smyth | x00151293 | declan.smyth@gmail.com |
 
 ---
 

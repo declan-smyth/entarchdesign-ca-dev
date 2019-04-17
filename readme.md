@@ -26,16 +26,20 @@ This is the high-level environemnt configuration that is implemented
 | Security Groups      | ead-ca-securitygrp-autoscalegrp  |
 |                      | ead-ca-securitygrp--loadbalancer |
 | SNS Topics           | ead-ca-test-results-notify       |
+|                      | AWS-Test-Results                 |
+|                      |                                  |
 
-### Auto Scale Group
 
-Responsible for describing the desired intrastrucutre you want to deploy
-Give the auto scale group charastics:
+
+![AWS Environment Image](images/infrastructure-setup.png)
+
+The auto scaling group will be configured to maintain a set number of intances that are evenly distributed across the availability zones
 
 * Min number of instances = 6
 * Max number of instances = 6
 
-In this setup it will maintain the group at a fixed size and is not scalling in or out.It will monitor the availability zones and send an alert when an event happens. This takes place using CloudWatch and have SNS send out the SMS or Email. This will take place automatically.
+In this setup it will maintain the group at a fixed size and is not scalling in or out. It will monitor the availability zones and send an alert when an event happens.
+
 
 ## Environment Setup Instructions
 
@@ -103,13 +107,15 @@ Create & Configure a new file called *terraform.tfvars*. This file is used to pr
  * SUBSCRIBER_EMAIL
  * SUBSCRIBER_PHONE
  * NUMBER_OF_INSTANCES
-If this information is missing, the environment will be get created successfully. The file can be created with a text editor of your choice
+If this information is missing, the environment will be get created successfully. The file can be created with a text editor of your choice.
+
+The file should be copied in the *infra/aws* folder. It will be used as part of the Terraform Plan and Apply commands
 
 > **NOTE:** *Do not commit your AWS **ACCESS KEY**  or **Secret Key** into a repository that will be published*
 
 #### Initialize Terraform
 
-In the folder where the git repo has been cloned, go to the *infra* folder
+In the folder where the git repo has been cloned, go to the *infra* folder, then go into the *aws* folder
 
 * Run the command `terraform init`.
 * This will download the required provider plugins, in this case the *aws* provider
@@ -121,7 +127,7 @@ The deployment of the environment is performed in two steps
 1. Verify and Validate the depoyment using the command `terraform plan -out "out.plan"`
 2. Apply the setup on the file *out.plan* using the command `terraform apply out.plan`
 
-Status and confirmation will be displayed on screen indicating progress. 
+Status and confirmation will be displayed on screen indicating progress.
 
 #### Warning...
 
@@ -135,6 +141,32 @@ If these have not been done, the test will fail
 
 ### Executing the tests
 
-To executes the tests goto the *scripts* folder in the location your cloned the git repository
+To executes the tests goto the *scripts* folder in the location where you cloned the git repository
 
-From this folder, run the comman - `python3 testharrness.py`
+From this folder, run the  command - `python3 testharrness.py`, this will launch the test harness. 
+
+When the scripts launch it will do the following:
+
+* list the instances that are running in the auto scale group and provide their status
+* Ask the user for the number of instances to terminate, up to the MAX number of running instances. 0 - (Zero) is used to exit
+
+After the number of instances to terminate is provided the script will:
+
+* List the instance IDs of the randomly selected instances to kill
+* Present a list of the remaining running instances
+* Start to time the re-instantment of the images
+* Loop until the instances are recoveredand in a healthy state OR the time out has lapsed
+  * The timeout is set to `*220 sec* x *number of instances to terminate*`
+* The following tests are performed as part of the re-instatement checks:
+  * Test 1 - Check if the number of instances in the group is the equal to desired level of the auto scale group
+  * Test 2 - Check if all instances in the group are healthy
+* When the test session has completed, tests results are presented to the user on screen
+  * Start Time
+  * Finish Time
+  * Number of instances stopped
+  * Number of instances started
+  * Elapsed Time
+  * Test Status
+* Using AWS Simple Notification Services, a notification is sent to:
+  * *Email Addresses* subscribed to the the TOPIC: **AWS-Test-Results**
+  * *Mobile Phones* subscribed to the the TOPIC: **ead-ca-test-results-notify**

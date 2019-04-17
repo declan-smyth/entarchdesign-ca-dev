@@ -6,7 +6,10 @@
 | ---- | ---------- | ------------- |
 | Declan Smyth | x00151293 | declan.smyth@gmail.com |
 
----
+### Link to ScreenCast
+
+A screen cast demonstrating the capabilities of the Test Harness is available from:
+<https://www.screencast.com/t/l7xGEgEBHfTA>
 
 ## Introduction
 
@@ -131,7 +134,6 @@ Before the tests are  executed the following requirements must be met:
 If these have not been done, the test will fail
 
 ### Executing the tests
-
 
 To executes the tests goto the *scripts* folder in the location your cloned the git repository
 

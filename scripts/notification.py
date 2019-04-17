@@ -28,7 +28,7 @@ def GetTopicARN():
 
 
 ###############################################################################
-# -- Function: 
+# -- Function: Send Email notification using SNS
 #               Input:  
 #               Return: 
 def SendEmailNotification(message,topic_arn_email):
@@ -46,7 +46,7 @@ def SendEmailNotification(message,topic_arn_email):
 
 
 ###############################################################################
-# -- Function: 
+# -- Function: Send SMS notification using SNS
 #               Input:  
 #               Return: 
 def SendSMSNotification(message, topic_arn_sms):
@@ -62,7 +62,7 @@ def SendSMSNotification(message, topic_arn_sms):
     )
 
 ###############################################################################
-# -- Function: 
+# -- Function: Send notification using Lambda function
 #               Input:  
 #               Return: 
 def SendNotification(message):
@@ -72,6 +72,6 @@ def SendNotification(message):
                                     ClientContext='EAD-CA-AWSTEST-APP',
                                     Payload=json.dumps(message))
     if response['StatusCode'] != "200":
-        print ("SendNotification: Error Code: %s \n Please check AWS logs for further information.",response['StatusCode'])
+        print ("SendNotification: Error Code: %s \n Please check AWS logs for further information.",% response['StatusCode'])
     
     
